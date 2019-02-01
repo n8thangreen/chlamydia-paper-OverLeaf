@@ -1,0 +1,223 @@
+\documentclass[fleqn,10pt]{wlscirep}
+\usepackage{tikz}
+\usepackage{dashrule}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{breakurl}
+\usepackage{hyperref}
+\def\UrlBreaks{\do\/\do-}
+%https://tex.stackexchange.com/questions/3033/forcing-linebreaks-in-url?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+\expandafter\def\expandafter\UrlBreaks\expandafter{\UrlBreaks%  save the current one
+  \do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j%
+  \do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t%
+  \do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D%
+  \do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N%
+  \do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X%
+  \do\Y\do\Z}
+  
+\definecolor{Mycolor2}{HTML}{00F9DE}
+
+
+%% <= 20 words
+\title{Assessing local chlamydia screening performance by combining survey and administrative data to account for differences in local population characteristics}
+
+\author[1,2*]{Nathan Green}
+\author[1]{Ellie Sherrard-Smith}
+\author[3]{Clare Tanton}
+\author[3]{Pam Sonnenberg}
+\author[3]{Catherine H. Mercer}
+\author[1,2,4]{Peter J. White}
+\affil[1]{MRC Centre Global Infectious Disease Analysis, Department of Infectious Disease Epidemiology, School of Public Health, Faculty of Medicine, Imperial College London, Norfolk Place, London W2 1PG, UK}
+\affil[2]{NIHR Health Protection Research Unit in Modelling Methodology, Department of Infectious Disease Epidemiology, School of Public Health, Faculty of Medicine, Imperial College London, Norfolk Place, London W2 1PG, UK}
+\affil[3]{Centre for Population Research in Sexual Health \& HIV, Institute for Global Health, University College London, Mortimer Market Centre, off Capper Street, London WC1E 6JB, UK}
+\affil[4]{Modelling and Economics Unit, National Infection Service, Public Health England, London NW9 5EQ, UK}
+
+
+\affil[*]{\href{mailto:nathan.green@imperial.ac.uk}{nathan.green@imperial.ac.uk}}
+
+\keywords{Small-area, census, logistic multilevel regression, post-stratification, population survey}
+
+%% <=200 words/currently 220
+\begin{abstract}
+Reducing health inequalities requires improved understanding of the causes of variation. Local-level variation reflects differences in local population characteristics and health system performance. Identifying low- and high-performing localities allows investigation into these differences. We used Multilevel Regression with Post-stratification~(MRP) to synthesise data from multiple sources, using chlamydia testing as our example. We used national probability survey data to identify individual-level characteristics associated with chlamydia testing and combined this with local-level census data to calculate expected levels of testing in each local authority~(LA) in England, allowing us to identify LAs where observed chlamydia testing rates were lower or higher than expected, given population characteristics. Taking account of multiple covariates, including age, sex, ethnicity, student and cohabiting status, 5.4\% and 3.5\% of LAs had testing rates higher than expected for 95\% and 99\% posterior credible intervals, respectively; 60.9\% and 50.8\% had rates lower than expected. Residual differences between observed and MRP expected values were smallest for LAs with large proportions of non-white ethnic populations. London boroughs that were markedly different from expected MRP values ($\geq$ 90\% posterior exceedance probability) had actively targeted risk groups. This type of synthesis allows more refined inferences to be made at small-area levels than previously feasible. 
+\end{abstract}
+\begin{document}
+
+\flushbottom
+\maketitle
+
+\section*{Introduction}
+
+Health inequalities are associated with social inequalities, which are strongly linked to geographic location \cite{TheMarmotReview2010}. The UK-government commissioned Marmot Review \cite{TheMarmotReview2010} recommended that health interventions must be universal but with a scale and intensity proportionate to the level of disadvantage in an area. Achieving this requires an understanding of health inequalities at the local level but most observational data are not (directly) relevant for addressing public health questions at both a national level and for sub-populations. Taking the simple approach to assessing performance of comparing local areas with the average of all local areas to see which ones are above or below average, and by how much, effectively assumes that the composition of each local area’s population is the same, when in fact the populations can be very different.
+One solution is to join individual-level data with area-level data to create a multilevel (or hierarchical) dataset \cite{Agerbo2007}. However, this is restricted by the relatively small sample sizes and coverage of individual-level data. To address this, a popular approach in geography and machine learning is synthetic reconstruction or reweighting to generate micro data, that is, spatially-detailed individual-level data \cite{Rahman2008}. However, these are not principled statistical approaches and do not provide additional understanding of underlying behaviours, relationships and associations.
+In the social sciences, Park {\it et al.}~(2004)~\cite{Park2004} introduced a framework which fits a multilevel logistic regression model to individual-level data conditional on post-stratification proportions from the area-level data, often called Multilevel Regression with Post-stratification~(MRP). In this paper, we describe how we adapted this method \cite{Park2004} in order to synthesise data from multiple sources and then compared the model’s results with national recorded surveillance data, with the intention of improving the evidence-base with which to inform local planning and assessment of health inequalities. We use chlamydia testing as our example because the need to use “good local data […] to develop plans to improve local sexual health outcomes and reduce health inequalities” is explicitly recognised in England \cite{DepartmentofHealth2013}. Surveillance data show that annual chlamydia testing in 15-24 year olds varies widely by locality (local authorities, LAs) in England, ranging from 10\% (Waveney) to 66\% (Kensington and Chelsea) (England average 23\%) \cite{fingertips}. There is also marked variation in the prevalence and incidence of chlamydia amongst LAs \cite{Lewis2017}. Use of the MRP approach enables us to understand how much of this variation may be appropriate if explained by sociodemographic and behavioural differences in the LA populations in contrast to inequalities in intervention delivery. In a similar way to using exceedance of ‘control limits’ on a funnel plot to identify outlier institutional performance \cite{Spiegelhalter2005}, LAs with marked deviation of rates of recorded testing from expected rates obtained by MRP estimates could be investigated to learn reasons for their performance being lower or higher than expected, such as use of innovative approaches to providing access to testing \cite{Estcourt2016} and in partner management \cite{Althaus2014}. This approach, to our knowledge, has never been used in an infectious disease context in England.
+
+\section*{Methods}
+
+We focused on individual-level social and demographic factors previously identified to be associated with chlamydia testing in the third British National Survey of Sexual Attitudes and Lifestyles~(Natsal-3), a nationally-representative probability sample survey of 15,162 people aged 16-59 conducted in 2010-2012 \cite{Erens2014,Johnson2017}. Data were available from Natsal-3 for these factors for England at four geographic levels: individual, LA ($n$ = 326), county ($n$ = 83) and regional ($n$ = 8: East of England, East Midlands, London, North East, North West, South East, South West and West Midlands). A multilevel logistic regression model was then fitted to the Natsal-3 individual-level data conditional on post-stratification proportions from the area-level census and administrative data \cite{Park2004}. Finally, the model was used to estimate the level of testing in each LA given its population characteristics. These expected levels of testing were then compared to recorded testing surveillance data in each LA.
+
+\subsection*{Data collation}
+
+\subsubsection*{Natsal-3}
+The Natsal-3 data are weighted to be representative of the English population with respect to gender, age, and regional distribution \cite{Mercer2013,Erens2014b} and were used to identify and quantify individual-level characteristics and behaviours associated with the probability of an individual having been tested for chlamydia in the last year.
+
+\subsubsection*{Demographic and risk factor data}
+All aggregated LA-level or age-sex grouped data were openly-available from the Office for National Statistics~(ONS), either from the 2011 census \cite{ONS_cesnsusdata} or routinely-collected administrative datasets \cite{OfficeforNationalStatistics2011, OfficeforNationalStatistics2011a, DepartmentforCommunitiesandLocalGovernment, ONS_conceptions, ONS_urbanrural}.
+
+\subsubsection*{Surveillance data}
+Comprehensive chlamydia testing surveillance data for 2011 (to align the surveillance data with the data collection period for Natsal-3) were obtained from the National Chlamydia Screening Programme~(NCSP, which tests 15-24-year-olds), Genitourinary Medicine Clinic Activity Dataset~(GUMCAD, which records testing of all ages) and non-NCSP and non-GUMCAD dataset~(NNNG, which records testing up to 24 years old) \cite{PublicHealthEngland}. As per recommendations from Woodhall {\it et al.}~\cite{Woodhall2013} we scaled the LA testing proportions from the surveillance data by 0.95 to account for errors in the data, including double-counting across datasets and repeat tests (see Supplementary Material).
+
+\subsection*{Statistical analysis}
+
+\subsubsection*{Individual-level logistic regression model using Natsal-3}
+Natsal-3 response for each individual $i$ is denoted by $y_i$, where $y_i = 1$ represents the participant reporting testing for chlamydia in the last year and 0 otherwise. 
+Individual-level covariates from Natsal-3 were sex (male/female), ethnicity (White, Black/Black British, Asian/Asian British, Chinese, Mixed, Other), current full-time student status (yes/no), whether an individual lives alone (household size one) and age (years). Covariates were chosen because of known STI risk factors \cite{Waroux2014}, availability in individual and area-level data sets, use in survey design \cite{Erens2014b}, posterior predictions and model selection statistics Akaike Information Criterion~(AIC) and Bayesian Information Criterion~(BIC) \cite{Gelman2007} were produced. Note that this is only a guide since standard model-selection approaches are complicated for multilevel models \cite{Molenberghs2016}. Also, covariates with apparently small effect sizes may have a larger influence in the post-stratification step.
+The LA-level covariates were the upper quartile Index of Multiple Deprivation~(IMD) i.e.\ identifying the most deprived areas relative to all others, $\leq 18$ years old conception rate per 1000 women and the ONS urban-rural area classification (Major Urban, Large Urban, Other Urban, Significant Rural, Rural-50, Rural-80, where Rural-50 and -80 are those areas which have $\geq 50$\% and $\geq 80$\% of their population living in a rural area, respectively). 
+These multilevel data were used in the model:
+
+\begin{displaymath}
+Pr(y_i = 1) = \mbox{logit}^{-1} \left( \beta^0 + \alpha_{j[i]}^{age} + \alpha_i^{male} male_i + \alpha_{k[i]}^{ethnicity} + \alpha_i^{student} student_i + \alpha_i^{livealone} livealone_i + \alpha_{m[i]}^{la} + \phi_{m[i]}^{la} \right),
+\end{displaymath}
+\begin{displaymath}
+\alpha_m^{la} \sim N \left( \alpha_m^{IMD} IMD_m + \alpha_{j[m]}^{ONSclass} + \alpha_{l[m]}^{county} + \alpha_{p[m]}^{conception}, \sigma_{la}^2 \right), \quad m = 1,\ldots, 326 \mbox{ local authorities},
+\end{displaymath}
+\begin{displaymath}
+\alpha_l^{county} \sim N \left( \alpha_{q[l]}^{gors}, \sigma_{county}^2 \right), \quad l = 1, \ldots, 83 \mbox{ counties},
+\end{displaymath}
+\noindent
+where, $e^{\alpha}$ represents the multiplicative effects on the odds ratios~(ORs) for the respective covariates that describe the probability of testing. In the Bayesian model, independent normal distributions centred at 0 with standard deviations $\sigma$ estimated from the data are assigned to the varying covariates, allowing a multilevel structure. The $\phi_m^{la}$ is the additional LA-structured random effect whose distribution conditions on the value of $\phi_m^{la}$ in the neighbouring LAs. We used a conditionally autoregressive~(CAR) distribution (details in the Supplementary Material). The remaining, fixed effect coefficients were not modelled with a multilevel structure. The values of female, non-student, not most deprived quintile, and cohabiting were set as fixed effect coefficient baseline.
+The Natsal-3 complex survey design was accounted for by including the covariates that have an effect on sampling or nonresponse in the regression model (age, sex, region and household size one) \cite{Gelman2007b}.
+
+\subsubsection*{Model Fitting}
+Bayesian models with uninformative priors were fitted using a Gibbs Markov chain Monte Carlo sampling algorithm implemented using the software {\it R}~\cite{RCoreTeam2017} and WinBUGS~\cite{Lunn2000}. Three Markov chains were initialised to assess convergence; the first 2000 iterations were discarded as burn-in. The posterior distributions were formed from 100,000 iterations with a thinning rate of 250 to estimate coefficients and generate 50\% and 95\% Bayesian credible intervals~(CrI) for the model fits.
+
+\subsubsection*{Post-stratification categories}
+Ideally, to perform the post-stratification a discrete joint distribution is required over all combinations of covariate values i.e.\ categories (for the individual-level variables, age (9 levels), gender (2 levels), ethnicity (6 levels), student status (2 levels) and living alone (2 levels) within a given LA, is a total of 432 combinations). However, allowing progressively higher dimensions reduces the subgroup sample sizes. Further, these combined data were not available. Instead, a simple LA adjustment (relative to the national average) was used to weight the data to account for LA, age and sex. As an example, if an LA had twice as many students as the national average, then the probability of being a student given age and sex was adjusted by a factor of two.
+It was then assumed that the variables were conditionally independent of one another given LA, age and sex of an individual. This allows estimates for the overall category probabilities to be obtained from the product of the conditional probabilities (see Supplementary Material). 
+
+\subsubsection*{LA-level estimates by post-stratification}
+Using the multilevel model described above, mean estimates of testing for chlamydia were obtained for all post-stratification categories. The LA-level estimates were acquired by summing the predicted individual probabilities over the categories and weighting by the categories corresponding to subpopulation sizes within each LA.
+For each category $j$, the estimated population average of the probability of testing for chlamydia in the last year in LA $S$ was then:
+\begin{displaymath}
+p_{la} = \frac{\sum_{j\in S} N_j p_j}{\sum_{j\in S} N_j}
+\end{displaymath}
+with each summation over all possible categories in an LA.
+
+\subsection*{Data Availability}
+
+The datasets analysed during the current study are all publicly available in the Office for National Statistics, Public Health England or UK Data Service repositories \cite{OfficeforNationalStatistics2011,OfficeforNationalStatistics2011a,DepartmentforCommunitiesandLocalGovernment,ONS_cesnsusdata,ONS_conceptions,ONS_urbanrural,PublicHealthEngland,Johnson2017}.
+
+\section*{Results}
+
+\subsection*{Bayesian regression individual-level model}
+The model indicated that the probability of chlamydia testing differed between ethnic groups, with Black, White and Mixed ethnic groups testing more than Asian, Chinese or people of undisclosed ethnicity; however, there were large uncertainties (Figure~\ref{fig:tornado}). For the fixed effects, females were more likely to test than males (estimated OR: 1.73, 95\% CI [0.07, 0.68]; corresponding with \cite{Sonnenberg2013}). Students were less likely to test than non-students (estimated OR: 0.82, 95\% CI [0.68, 0.99]). Those in the upper quartile of IMD were slightly less likely to test (OR 0.84, 95\% CI [0.66, 1.07] vs. those not in the upper quartile) but data were consistent with there being no association. Living alone had a relatively small association with chlamydia testing (OR: 0.87, 95\% CI [0.66, 1.16]). Figure~\ref{fig:ridge} shows posterior distributions for age which show it to be a good predictor of testing behaviour; whilst 16-year olds did not test as much as older participants (which reflects the fact that half of participants aged 16 had not had sex and would not have been at risk of infection), peak testing was estimated for 17 – 19-year olds and chlamydia testing decreased with older ages. Supplementary Material describes a two-step regression model to account for this pattern. Individuals in LAs with lower conception rates for those $\leq 18$ years old were generally less likely to test for chlamydia. Figure~\ref{fig:forest} shows the (ordered) LA and county level parameter posterior estimates. Many of the LAs had similar estimates although the CrI were relatively wide. Model checking plots and statistics are given in the Supplementary Material.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=5in]{Figure-3__Green__tornado-plot-demographics}
+\caption{Posterior distributions of the log odds ratio of model parameters, estimated using a Bayesian multilevel
+regression model. Points indicate posterior modes, bold lines (\rule[0.3ex]{0.3cm}{1.5pt}) are the 50\% credible intervals and narrow lines (\rule[0.3ex]{0.3cm}{0.5pt}) are the 95\% credible intervals.}
+\label{fig:tornado}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=5in]{Figure-1__Green__age-ridge-plot}
+\caption{Full posterior distributions of the log odds ratio of probability of chlamydia testing in previous year by age estimated using a Bayesian multilevel regression model. Estimates from multiple Markov chain Monte Carlo (MCMC) chains are shown for each age (green, blue and red lines).}
+\label{fig:ridge}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=7in]{Figure-2__Green__forest-plot_metUA-LA}
+\caption{Posterior distributions of the log odds ratio for {\bf (a)} local authorities~(LAs) and {\bf (b)} counties, estimated using a
+Bayesian multilevel regression model. Points indicate posterior modes, bold lines (\rule[0.3ex]{0.3cm}{1.5pt}) are the 50\% credible intervals and narrow lines (\rule[0.3ex]{0.3cm}{0.5pt}) are the 95\% credible intervals. LAs are ordered from most to least amounts of
+chlamydia testing.}
+\label{fig:forest}
+\end{figure}
+
+\subsection*{Comparison to recorded testing surveillance data}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=5in]{Figure-4__Green__scatter-all}
+\caption{Posterior predictions of chlamydia testing coverage in the previous year using MRP estimates with propagated uncertainty against recorded testing in NCSP 2011 surveillance data, showing {\bf (a)} 50\% (thick grey line (\textcolor{gray}{\rule[0.3ex]{0.3cm}{1.5pt}})) and 95\% (thin grey line (\textcolor{gray}{\rule[0.3ex]{0.3cm}{0.5pt}})) credible intervals for each LA propagating forward the uncertainty associated with each parameter estimate, {\bf (b)} zoomed-in Figure a, {\bf (c)} numbered LA points, and {\bf (d)} zoomed-in Figure c. Diagonal lines indicate equality of MRP estimates and recorded testing.}
+\label{fig:scatterall}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=7in]{Figure-5__Green__bubble-plot-ABCD}
+\caption{Bubble plot of LA-level MRP point estimates using Bayesian maximum a-posteriori~(MAP) estimates of chlamydia testing against 2011 recorded testing rates. Horizontal lines show the weighted mean Natsal-3 coverage (dashed (\hdashrule{7mm}{0.5pt}{1.0mm})) and the mean recorded testing coverage (dotted (\hdashrule{5mm}{0.5pt}{0.5mm})). Diagonal lines show where the estimates produced using Natsal-3 equal the recorded testing (dashed) and where the MRP estimates equal the recorded testing values and adjusting the estimated mean to equal the recorded national average (dotted). The size of this adjustment is indicated by the vertical arrowed line. The England-wide MRP point estimate vs recorded testing is indicated by the red asterisk (\textcolor{red}{$\star$}). Plot regions are highlighted where an LA performance categorisation depends on whether the recorded testing mean or estimated testing is used (\textcolor{Mycolor2}{\rule{3mm}{2.5mm}}) (see text for details). Regions are shown for {\bf (a)} MRP estimates against recorded data; {\bf (b)} recorded data mean shifted MRP estimates against recorded data. The bubble sizes are proportional to the Natsal-3 sample size. }
+\label{fig:bubble}
+\end{figure}
+
+Figure~\ref{fig:scatterall} shows the expected level of testing in each LA given the specific characteristics of each locality (estimated from the MRP model) compared to the level of testing recorded in the surveillance data. In England, there were no MRP estimates distant from the others; all 95\% CrIs overlapped with at least one other.
+For many LAs the MRP estimates were higher than recorded testing. This is in-part due to the MRP estimates being distributed about the posterior mean. Furthermore, the variability of MRP estimates was smaller than for recorded testing data. This may be due to the model not distinguishing between different LAs for the given covariates. The model did not appear to estimate higher testing rates than the posterior mean and did distinguish several LAs as being smaller than the mean. In Figure~\ref{fig:bubble}, we see that the England mean averages for chlamydia testing from Natsal-3, 35\% (horizontal dashed line) and recorded testing, 26\% (horizontal dotted line), suggest that there were discrepancies in the two data sources, even accounting for uncertainties about these estimates. The Natsal-3 average was weighted to account for sample design but may have recall and other biases. The proportion of LAs with rates of recorded testing above the mean rate of recorded testing was 43\%, whilst the proportion of LAs with rates of recorded testing above the mean Natsal-based estimated rate of testing was 10\%. LAs above the dashed diagonal line had higher rates of testing than expected, given their population demographics, whilst those below these lines had less testing than expected. The proportion of LAs with recorded testing above estimated was 26\%. 
+The dotted diagonal line is shifted to have the same mean as the recorded testing rather than the Natsal-3 regression intercept value, $\beta^0$. Assessment of LA performance could be made using any of these classification lines. 
+The annotation letters indicate plotting regions where an LA classification may change depending on which threshold is being used (see Table~\ref{tab:regions}).
+\begin{itemize}
+\item[A.] Below threshold when using the recorded testing mean but above threshold when using the modelled LA population composition (see Figure~\ref{fig:bubble}a).
+\item[B.] Above threshold when using the recorded testing mean but below threshold when using the modelled LA population composition (see Figure~\ref{fig:bubble}a).
+\item[C.] Below threshold when using the recorded testing mean but above threshold when using the modelled LA population composition shifted to have the same mean as the recorded testing (see Figure~\ref{fig:bubble}b).
+\item[D.] Above threshold when using the recorded testing mean but below threshold when using the LA population composition shifted to have the same mean as the recorded testing (see Figure~\ref{fig:bubble}b).
+\end{itemize}
+
+\begin{table}[!ht]
+\renewcommand*{\arraystretch}{1.5}
+\centering
+\begin{tabular}{|l|l|l|l|l|}
+\hline 
+ & $p_{la}^{rec} > p_{la}^{mrp}$
+ & $p_{la}^{rec}< p_{la}^{mrp}$
+ & $p_{la}^{rec} > p_{la}^{mrp*}$
+ & $p_{la}^{rec}< p_{la}^{mrp*}$ \\
+\hline
+$p_{la}^{rec} > \bar{p}^{rec}$ & 24\% & 19\% & 34\% & 8\%\\
+\hline
+$p_{la}^{rec} < \bar{p}^{rec}$ & 2\% & 56\% & 4\% & 54\%\\
+\hline
+\end{tabular}
+\caption{\label{tab:regions} Proportion of local authorities~(LA) in plotting regions defined by the MRP, adjusted MRP and mean recorded testing thresholds, where $p_{la}^{rec}$ are the estimated probability of testing for chlamydia in the previous year for an LA using NCSP 2011, $\bar{p}^{rec}$ is the mean of $p_{la}^{rec}$, $p_{la}^{mrp}$ are the equivalent probabilities calculated using MRP and Natsal-3 data, and $p_{la}^{mrp*}$ are the MRP estimates adjusted so that $\bar{p}^{rec} = \bar{p}^{mrp*}$.}
+\end{table}
+
+Figure~\ref{fig:choropleth} shows a choropleth map of LAs in England by posterior probability of recorded testing for chlamydia in the previous year exceeding MRP estimates. The red areas are those LAs that had a high likelihood of exceeding expected testing rates given their population’s characteristics. Several of the more-deprived London boroughs had high probability, as well as LAs near other large cities in England, including Birmingham and Manchester. Related plots for specific threshold probabilities are given in the Supplementary Material.
+
+\subsection*{Specific observations}
+Recorded testing for the London LAs of Lambeth, Southwark and Lewisham were markedly different from the MRP expected values, such that the chance of the posterior probability of the surveillance values being smaller than the MRP estimates were small ($<$0.1) (Figure~\ref{fig:choropleth}).
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=5in]{Figure-6__Green__choropleth-map}
+\caption{A choropleth map of England by LA of posterior probability of testing for chlamydia in the previous year in
+NCSP 2011 exceeding Multilevel Regression with Post-stratification model estimates~(MRP).}
+\label{fig:choropleth}
+\end{figure}
+
+\section*{Discussion}
+
+\section*{Discussion}
+Reducing health inequalities and improving the performance of public health systems requires identifying examples of poor performance which require special attention – as is increasingly done with surgical mortality statistics, for example – and identifying examples of high performance, from which lessons can be learned to be applied elsewhere. In turn, this requires comparing observed performance with expected performance. In the case of chlamydia screening rates, we have shown a large variation amongst local authorities~(LAs) in England, but there was also large variation in the demographic composition of LA populations and therefore crude comparison of those that are above or below average, or even placing in to quintiles, does not indicate which LAs are performing better or worse than expected, given their populations.
+
+To address this challenge, we used a Multilevel Regression with Post-stratification~(MRP) model in order to maximise the utility of data collected by detailed, nationally-representative surveys and national census. To our knowledge, this approach has had limited application to public health research to-date \cite{Zhang2013, Wang2018} and has never been used in an infectious disease context in England. Previously, comparison of data from Natsal-2 (1999-2001) and NCSP (in 2008) found that NCSP tested a greater proportion of individuals with STI risk factors \cite{Riha2011}. The MRP approach used here aimed to adjust for such an imbalanced sample. The numbers of non-White British participants in Natsal-3 was relatively small and may limit the statistical power for subgroup analysis. Uncertainty was explicitly quantified in the posterior distributions but the estimates for these ethnic groups was unavoidably less informative. Another limitation of the data is that neither Natsal-3 nor surveillance data recorded the frequency of repeat testing by individuals. However, analysis of national-level data from the previous year (i.e.\ 2010) \cite{Woodhall2013} reported that of people who tested for chlamydia, 89.8\% tested once in the year, and 89.2\% of tests performed were on people who tested once, so data on retesting would likely have had only a minor effect on our results. A key insight from our study is how much variation amongst LAs was accounted for by variation in measured local population characteristics. However, for binary data, such as STI testing, further research is required to explain variances between levels in multilevel models, e.g.\ LA and county level~\cite{Gelman2006}.
+
+The MRP method is widely-applicable across public health and can enable researchers and decision-makers to make better use of publicly-funded data to facilitate insights to improve services. With economic austerity and an increasing focus on secondary data analyses, the MRP method can help draw inferences about population behaviours where data are sparse, or a specific study was not performed. Adopting the MRP approach enabled us to identify a subset of LAs where testing rates were different from expected given the characteristics of the population. This is a better way to assess LA performance than crude analysis of testing rates e.g.\ by ranking areas relative to a pooled national average \cite{Editorial2016}. Once LAs with particularly high (or low) performance relative to expectations have been identified the underlying reasons can be investigated. These are likely to include local operational decisions, which can be examined to help LAs learn from each other. In conclusion, we have demonstrated use of the MRP approach to chlamydia screening coverage in England. This novel approach enables identification of LAs where chlamydia testing coverage is lower or higher than expected given the characteristics of their populations. We identified that the London boroughs of Lambeth, Southwark and Lewisham out-performed all other London boroughs (as well as most other LAs across England) in chlamydia testing, which suggests that their coordinated sexual health strategy \cite{LSLstrategy2014,MEDFASH2008} has been successful. With limited evidence of the overall effectiveness of chlamydia screening in England to-date \cite{Lewis2018}, we recommend that NCSP investigate the particular approaches to promoting and providing screening used by these high-performing LAs to determine what lessons can be learned to improve the performance of other LAs to maximise the benefits of the programme nationally. Improved data, including recording in a future Natsal study and surveillance data why the patient was tested, whether the patient had symptoms (and their duration if applicable), information on the patient’s sexual risk behaviour \cite{Lewis2017, Lewis2018} and the frequency of retesting, with surveillance data broken down by age, sex, and geographic location so that it could be incorporated into analysis of the type presented here, would enable further insights to improve NCSP.
+
+\newpage
+\bibliography{bibliography}
+
+\section*{Author contributions}
+P.J.W. conceived the project, N.G. conducted the modelling, N.G., E.S.S., P.J.W., C.T., P.S. C.M. analysed the results and wrote the paper. All authors reviewed the manuscript.
+
+\section*{Additional Information}
+{\bf Supplementary information} accompanies this paper.\\
+{\bf Data availability} All data were publicly available as detailed in the main text.
+
+\subsection*{Competing interests}
+The authors declare no competing interests.
+
+\subsection*{Funding}
+This work by N.G. and P.J.W. was supported by the UK National Institute for Health Research Health Protection Research Unit (NIHR HPRU) in Modelling Methodology at Imperial College London in partnership with Public Health England (PHE) (HPRU-2012-10080). P.J.W. also acknowledges joint Centre funding from the UK Medical Research Council and Department for International Development~(MR/R015600/1). Natsal-3 was supported by grants from the Medical Research Council [G0701757]; and the Wellcome Trust [084840]; with contributions from the Economic and Social Research Council and Department of Health.
+The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript. The views expressed in this paper are those of the authors and not necessarily those of the Department of Health and Social Care (DHSC), Department for International Development (DfID), MRC, NHS, NIHR, or Public Health England. 
+
+\end{document}
